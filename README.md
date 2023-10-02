@@ -13,7 +13,7 @@ Welcome to Vegvisir, an open-source testing framework for QUIC developers and re
 
 Vegvisir's primary goal is to orchestrate client and server communication over various simulated network conditions to collect logs about your experiments and, subsequentially, help you get insights into your applications' behavior. Simulating allows you to identify and resolve issues that may only occur under specific network conditions, improving the reliability and performance of your application. The codebase uses existing network simulation tools; it was tested with tc-netem and NS3 but should also work with other similar simulation tools. While initially intended only to be used for QUIC-based network applications, the experiments you define for Vegvisir can also use other transport-layer protocols.
 
-Vegvisir can capture any logs/output produced from experiments. By default, compatible QUIC-based applications/implementations will create [qlogs](https://datatracker.ietf.org/doc/draft-ietf-quic-qlog-h3-events/), and the network simulations will create pcaps.
+Vegvisir can also capture any logs/output produced from experiments. By default, compatible QUIC-based applications/implementations will create [qlogs](https://datatracker.ietf.org/doc/draft-ietf-quic-qlog-h3-events/), and the network simulations will create pcaps.
 With visualization tools such as [qvis](https://qvis.quictools.info/) and [wireshark](https://www.wireshark.org/), you can quickly analyze these logs and gain a deeper understanding of what's happening under the hood of your application.
 Whether you're a developer looking to improve the performance of your software or a researcher studying network behavior, Vegvisir is a powerful addition to your toolkit.
 
