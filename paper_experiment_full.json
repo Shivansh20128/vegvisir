@@ -54,7 +54,7 @@
 
     "settings": {
         "label": "cross_layer_paper",
-        "www_dir": "/home/shivansh/root/datasets",
+        "www_dir": "/mnt/c/Users/shivi/IdeaProjects/Client-Server-Setup/datasets",
         "iterations": 1
     }
 }
