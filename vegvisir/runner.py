@@ -30,6 +30,7 @@ class LogFileFormatter(logging.Formatter):
 
 class Experiment:
 	def __init__(self, sudo_password: str, configuration_object: Configuration):
+		print("experiment mei print")
 		self.configuration = configuration_object
 
 		self.post_hook_processors: List[threading.Thread] = []
@@ -72,6 +73,7 @@ class Experiment:
 
 	def run(self):
 		vegvisir_start_time = datetime.now()
+		print("abey")
 
 		# Root path for logs needs to be known and exist for metadata copies
 		self.configuration.path_collection.log_path_date = os.path.join(self.configuration.path_collection.log_path_root, "{:%Y-%m-%dT_%H-%M-%S}".format(vegvisir_start_time))
@@ -81,6 +83,7 @@ class Experiment:
 		# For now, assume json files
 		implementations_destination = os.path.join(self.configuration.path_collection.log_path_date, "implementations.json")
 		experiment_destination = os.path.join(self.configuration.path_collection.log_path_date, "experiment.json")
+
 		try:
 			shutil.copy2(self.configuration.path_collection.implementations_configuration_file_path, implementations_destination) 
 		except IOError as e:
@@ -96,7 +99,7 @@ class Experiment:
 			self.post_hook_processors.append(processor)
 
 		self._enable_ipv6()
-
+		print("bbeyy")
 		experiment_permutation_total = len(self.configuration.shaper_configurations) * len(self.configuration.server_configurations) * len(self.configuration.client_configurations) * self.configuration.iterations
 		experiment_permutation_counter = 0
 		for shaper_config in self.configuration.shaper_configurations:
@@ -110,6 +113,7 @@ class Experiment:
 
 					# SETUP
 					if client.type == Endpoint.Type.HOST:
+						print("isme jayega kya")
 						_, out, err = self.host_interface.spawn_blocking_subprocess("hostman add 193.167.100.100 server4", True, False)
 						self.logger.debug("Vegvisir: append entry to hosts: %s", out.strip())
 						if err is not None and len(err) > 0:
@@ -137,7 +141,7 @@ class Experiment:
 						self.logger.addHandler(log_handler)
 
 						path_collection_copy = dataclasses.replace(self.configuration.path_collection)
-
+						print("yaha tak thik h?")
 						self.logger.debug("Calling environment pre_hook")
 						pre_hook_start = datetime.now()
 						try:
@@ -202,17 +206,21 @@ class Experiment:
 						# params += " ".join(server.additional_envs())
 						# containers = "sim server " + " ".join(testcase.additional_containers())
 						containers = "sim server tcpdump_leftnet tcpdump_rightnet"
-
+						print("yaha compose chlega")
+						print(docker_compose_vars)
+						print(containers)
 						cmd = (
 							docker_compose_vars
 							+ " docker compose up -d "
 							+ containers
 						)
+						print("hogya kya")
 						# self.host_interface.spawn_parallel_subprocess(cmd, False, True)
 						self.host_interface.spawn_blocking_subprocess(cmd, False, True) # TODO Test out if this truly fixes the RNETLINK error? This call might be too slow
-						
+						print("yaha toh aayenge chlo")
 						# Host applications require some packet rerouting to be able to reach docker containers
 						if self.configuration.client_endpoints[client_config["name"]].type == Endpoint.Type.HOST:
+							print("isme jayenge kya?")
 							self.logger.debug("Detected local client, rerouting localhost traffic to 193.167.100.0/24 via 193.167.0.2")
 							_, out, err = self.host_interface.spawn_blocking_subprocess("ip route del 193.167.100.0/24", True, False)
 							if err is not None and len(err) > 0:
@@ -232,8 +240,9 @@ class Experiment:
 						self.print_debug_information("ip address")
 						self.print_debug_information("ip route list")
 						self.print_debug_information("sysctl -a")
-						self.print_debug_information("docker version")
-						self.print_debug_information("docker compose version")
+						# self.print_debug_information("docker version")
+						# self.print_debug_information("docker compose version")
+
 
 						# Setup client
 						vegvisirClientArguments = dataclasses.replace(vegvisirBaseArguments, ROLE = "client", TESTCASE = self.configuration.environment.get_QIR_compatibility_testcase(BaseEnvironment.Perspective.CLIENT))
@@ -241,6 +250,7 @@ class Experiment:
 						
 						client_cmd = ""
 						client_proc = None
+						print("client se pehle")
 						if client.type == Endpoint.Type.DOCKER:
 							with open("client.env", "w") as fp:
 								Parameters.serialize_to_env_file(client_params, fp)

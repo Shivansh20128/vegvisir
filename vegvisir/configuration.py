@@ -17,7 +17,7 @@ from vegvisir.implementation import (DockerImage, Endpoint, HostCommand,
 
 class Configuration:
 	def __init__(self, implementations_path: str | None = None, experiment_path: str | None = None) -> None:
-		
+		print("idhar dekho")
 		self._implementations_configuration_loaded = False
 		self._experiment_configuration_loaded = False
 
@@ -41,12 +41,15 @@ class Configuration:
 
 		# Provide developer with the freedom of already loading the provided configuration paths
 		if implementations_path is not None:
+			print("itthe")
 			self.load_implementations_from_file(implementations_path)
 		if experiment_path is not None:
 			self.load_experiment_from_file(experiment_path)
+			print("dono hogye")
 
 	@property
 	def client_endpoints(self):
+		print("yaha bhi hai kya")
 		self._validate_and_raise_load(self._implementations_configuration_loaded, "client_endpoints", "implementations")
 		return self._client_endpoints
 
@@ -119,6 +122,7 @@ class Configuration:
 		Load client, shaper and server implementations from JSON configuration file
 		Warning: Calling this function will overwrite current list of implementations!
 		"""
+		print("fir itthe")
 		self._client_endpoints = {}
 		self._server_endpoints = {}
 		self._shapers = {}
@@ -127,6 +131,7 @@ class Configuration:
 			with open(implementations_path) as f:
 				implementations = json.load(f)
 			self._load_implementations_from_dict(implementations)
+			print("yaha ye khatam")
 			self._path_collection.implementations_configuration_file_path = implementations_path
 		except FileNotFoundError as e:
 			raise VegvisirConfigurationException(f"Implementations file [{implementations_path}] not found | {e}")
@@ -138,6 +143,7 @@ class Configuration:
 		Load implementation from a JSON file
 		If truly loaded via json.load, duplicates will be automatically be eliminated
 		"""
+		print("ye toh pehle hai")
 		if self._implementations_configuration_loaded:
 			raise VegvisirConfigurationException("Configuration objects can not reload configurations. Create a new configuration object for multiple configurations.")
 		self._implementations_configuration_loaded = True
@@ -148,17 +154,22 @@ class Configuration:
 		
 		if not all(key in implementations for key in [CLIENTS_KEY, SERVERS_KEY, SHAPERS_KEY]):
 			raise VegvisirInvalidImplementationConfigurationException("Loading implementations halted. One or multiple keys are missing in the provided implementations JSON ('clients', 'servers' and/or 'shapers').") 
-		
+
 		# Clients
 		for client, configuration in implementations[CLIENTS_KEY].items():
+
 			if "image" in configuration and "command" in configuration:
 				raise VegvisirInvalidImplementationConfigurationException(f"Client [{client}] contains both docker and host setup keys.")
 			impl = None
 			if "image" in configuration or "command" in configuration:
 				implementation_type = Endpoint.Type.DOCKER if "image" in configuration else Endpoint.Type.HOST
+				print(implementation_type)
 				parameters = Parameters(configuration.get("parameters", []))
+				print("baad mei ye")
 				impl = Endpoint(client, client, implementation_type, DockerImage(configuration["image"]) if implementation_type == Endpoint.Type.DOCKER else HostCommand(configuration["command"]), parameters)  # TODO jherbots pretty name
+				print("ek toh hona chaiye")
 				if implementation_type == Endpoint.Type.HOST:
+
 					try:
 						impl.command.serialize_command(parameters.hydrate_with_empty_arguments())
 					except VegvisirCommandException as e:
@@ -185,11 +196,13 @@ class Configuration:
 			self._client_endpoints[client] = impl
 
 		# Server
+
 		for server, configuration in implementations[SERVERS_KEY].items():
 			if not "image" in configuration:
 				raise VegvisirInvalidImplementationConfigurationException(f"Server [{server}] missing key 'image'.")
 			parameters = Parameters(configuration.get("parameters", []))
 			impl = Endpoint(server, server, Endpoint.Type.DOCKER, DockerImage(configuration["image"]), parameters)
+			print("endpoint k baad")
 			self._server_endpoints[server] = impl
 
 		# Shapers
@@ -201,8 +214,10 @@ class Configuration:
 				raise VegvisirInvalidImplementationConfigurationException(f"Shaper [{shaper}] does not contain any scenarios.")
 
 			impl = Shaper(shaper, shaper, DockerImage(configuration["image"]))  # TODO pretty name
+			print("shaper k baad")
 			for scenario, contents in configuration[SCENARIOS_KEY].items():
 				if type(contents) == str:
+					print("ye")
 					impl.scenarios[scenario] = Scenario(contents, Parameters())
 				elif contents.get("command") and contents.get("parameters"):
 					parameters = Parameters(contents.get("parameters", []))
@@ -212,10 +227,12 @@ class Configuration:
 			self._shapers[shaper] = impl
 
 	def load_experiment_from_file(self, experiment_path: str) -> None:
+		print("fir ye hoga")
 		try:
 			with open(experiment_path) as f:
 				configuration = json.load(f)
 			self._load_and_validate_experiment_from_dict(configuration)
+			print("vapis?")
 			self._path_collection.experiment_configuration_file_path = experiment_path
 		except FileNotFoundError as e:
 			raise VegvisirConfigurationException(f"Implementations file [{experiment_path}] not found | {e}")
@@ -226,6 +243,7 @@ class Configuration:
 		"""
 		Load and validate is a bad smell, but then again why bother :)
 		"""
+		print("fir load and validation karenge")
 		if not self._implementations_configuration_loaded:
 			raise VegvisirConfigurationException("Configuration objects can not load experiment configurations without implementations being loaded first.")
 		if self._experiment_configuration_loaded:
@@ -285,6 +303,7 @@ class Configuration:
 					raise VegvisirInvalidExperimentConfigurationException(f"{debug_str.capitalize()} [{name}] duplicate detected. Please provide a 'log_name' to be able to distinguish.")
 
 		vegvisirDummyArguments = VegvisirArguments().dummy()
+		print("yaha tak")
 		def _validate_command_with_real_parameters(client_endpoint: Endpoint, client_unhydrated_parameters: Dict[str, str]) -> None:
 			if client_endpoint.type == Endpoint.Type.DOCKER:
 				return
@@ -305,7 +324,7 @@ class Configuration:
 			_parametercheck_endpoint(self._client_endpoints[client["name"]], client, "client")
 			_validate_command_with_real_parameters(self._client_endpoints[client["name"]], client.get("arguments", {}))
 			self._client_configurations.append(client)
-
+		print("checks done for client")
 		duplicate_check = set()
 		for index, server in enumerate(configuration[SERVERS_KEY]):
 			_namecheck_dict(server, index, "server", self._server_endpoints)
@@ -313,7 +332,7 @@ class Configuration:
 			duplicate_check.add(server["log_name"] if server.get("log_name") is not None else server["name"])
 			_parametercheck_endpoint(self._server_endpoints[server["name"]], server, "server")
 			self._server_configurations.append(server)
-
+		print("checks done for server")
 		duplicate_check = set()
 		for index, shaper in enumerate(configuration[SHAPERS_KEY]):
 			_namecheck_dict(shaper, index, "shaper", self._shapers)
@@ -321,7 +340,7 @@ class Configuration:
 			duplicate_check.add(shaper["log_name"] if shaper.get("log_name") is not None else shaper["name"])
 			_scenariocheck_shaper(shaper, self._shapers[shaper["name"]].scenarios)
 			self._shaper_configurations.append(shaper)
-
+		print("checks done for shaper")
 		if settings.get("log_dir") is not None:
 			log_dir_root = os.path.abspath(os.path.join(settings["log_dir"], "{}/"))
 		else:
@@ -366,6 +385,8 @@ class Configuration:
 		environment_sensors = environment.get("sensors")
 		if environment_sensors is None:
 			raise VegvisirInvalidExperimentConfigurationException("Environment expects the key 'sensors' to be present.")
+
+		print("sensors bhi mil gye")
 		for index, sensor in enumerate(environment_sensors):
 			if sensor.get("name") is None:
 				raise VegvisirInvalidImplementationConfigurationException(f"Sensor #{index} has no 'name' key.")

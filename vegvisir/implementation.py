@@ -79,10 +79,11 @@ class Parameters:
 				self.params.append(key)
 				if required:
 					self._required_params.append(key)
-		elif type(parameters) == list:
-			for key in parameters:
-				self.params.append(key)
-				self._required_params.append(key)
+		print("parameters k andar")
+		# elif type(parameters) == list:
+		# 	for key in parameters:
+		# 		self.params.append(key)
+		# 		self._required_params.append(key)
 
 		forbidden_params = set(self.params) & set(Parameters._vegvisir_provided_params)
 		if len(forbidden_params) > 0:
@@ -149,8 +150,9 @@ class Scenario:
 	def __init__(self, command: str, parameters: Parameters) -> None:
 		self.command: str = command
 		self.parameters: Parameters = parameters
-
+		print("in class scenario")
 	def __repr__(self) -> str:
+		print(f"Scenario<command: '{self.command}', parameters: {self.parameters}>")
 		return f"Scenario<command: '{self.command}', parameters: {self.parameters}>"
 
 class DockerImage:
@@ -191,7 +193,7 @@ class Endpoint:
 		self.parameters: Parameters = params
 		self.construct: List[HostCommand] = []
 		self.destruct: List[HostCommand] = []
-		
+		print("shivansh in endpoint")
 	def __repr__(self) -> str:
 		return f"Endpoint<{self.name}, {self.type.name}, {self.image if self.image is not None else self.command}>"
 
@@ -202,6 +204,7 @@ class Shaper:
 		self.image = image
 		self.pretty_name = pretty_name
 		self.scenarios: Dict[str, Scenario] = {}
+		print("shivansh in shaper")
 
 	def __repr__(self) -> str:
 		return f"Shaper<{self.name}, scenarios {self.scenarios}>"
