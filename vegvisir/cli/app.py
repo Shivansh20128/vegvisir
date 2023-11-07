@@ -267,45 +267,60 @@ def run(vegvisir_arguments):
     construct_tui()
     signal.signal(signal.SIGWINCH, calculate_and_set_screen_size)
     signal.signal(signal.SIGINT, sigint_handler)
+    print("third here")
     print(generate_banner())
-    
+
     sudo_pass = getpass(f"{control_sequences['BOLD']}{control_sequences['COLOR'].format(r=211, g=215, b=207)}Vegvisir >{control_sequences['CLEAR_COLOR']} Enter password to run sudo commands: ")
     
     tui_start_timestamp = datetime.now()
     tui_thread = threading.Thread(target=tui_render_tick)
     tui_thread.start()
-    
+    print("isse pehle")
     try:
         configuration = Configuration(implementations_path, experiment_path)
+        print("just pehle")
         r = runner.Experiment(sudo_password=sudo_pass, configuration_object=configuration)
         for experiment in r.run():
+
             tui_client_name, tui_shaper_name, tui_server_name, tui_progress_current, tui_progress_total = experiment
+            print(tui_client_name)
+            print(tui_shaper_name)
+            print(tui_server_name)
+            print(tui_progress_current)
+            print(tui_progress_total)
+            print("4th here")
+            print("hello hello")
     except exceptions.VegvisirConfigurationException as e:
+        print("1th here")
         logger.error("Vegvisir generic configuration error, halting execution")
         logger.error(e)
         destruct_tui()
         sys.exit(1)
     except exceptions.VegvisirInvalidImplementationConfigurationException as e:
+        print("2th here")
         logger.error("Vegvisir implementations configuration contains incorrect data, halting execution")
         logger.error(e)
         destruct_tui()
         sys.exit(1)
     except exceptions.VegvisirInvalidExperimentConfigurationException as e:
+        print("3th here")
         logger.error("Vegvisir experiment configuration contains incorrect data, halting execution")
         logger.error(e)
         destruct_tui()
         sys.exit(1)
     except exceptions.VegvisirArgumentException as e:
+        print("4th here")
         logger.error("Vegvisir implementations or experiment configuration contains a wrongfully configured argument, halting execution")
         logger.error(e)
         destruct_tui()
         sys.exit(1)
     except (exceptions.VegvisirException, Exception) as e:  # Exception allows for clean shutdowns of the GUI
+        print("5th here")
         logger.error("Generic Vegvisir error encountered, halting exception.")
         logger.error(e)
         destruct_tui()
         sys.exit(1)
-
+    print("here?")
     destruct_tui()
     logger.info(f"Vegvisir experiment finished. Total elapsed time {datetime.now()-tui_start_timestamp}")
 
@@ -381,7 +396,10 @@ def main():
     }
 
     command_callback = command_to_callback_map.get(vegvisir_arguments.command, None)
+    print(command_callback)
     if command_callback:
+        print("seond here")
+        print(vegvisir_arguments)
         command_callback(vegvisir_arguments)
     else:
         argument_parser.print_help()
