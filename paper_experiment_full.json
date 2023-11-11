@@ -1,1 +1,41 @@
-{    "clients": [        {            "name": "godashcl",            "log_name": "godashcl-bba2cl-double-bbb-2s",            "arguments": {                "REQUESTS": "https://!{ORIGIN}/BigBuckBunny/2sec/BigBuckBunny_2s_simple_2014_05_09BBA2.mpd",                "ABR": "bba2XL-double",                "MAX_BUFFER": "60"            }        }    ],    "shapers": [        {            "name": "tc-netem-cl",            "log_name": "tc-netem-cl-paper",            "scenario": "bba_buffering_paper"        }    ],        "servers": [        {"name": "quic-go"}    ],    "environment": {        "name": "cross-layer",        "sensors": [            {                "name": "timeout",                "timeout": 100            }        ]    },    "settings": {        "label": "cross_layer_paper",        "www_dir": "/mnt/c/Users/shivi/IdeaProjects/Client-Server-Setup/datasets",        "iterations": 1    }}
+{
+    "clients": [
+        {
+            "name": "godashcl",
+            "log_name": "godashcl-bba2cl-double-bbb-1s",
+            "arguments": {
+                "REQUESTS": "https://!{ORIGIN}/BigBuckBunny/1sec/BigBuckBunny_1s_simple_2014_05_09BBA2.mpd",
+                "ABR": "bba2XL-double",
+                "MAX_BUFFER": "60"
+            }
+        }
+    ],
+
+    "shapers": [
+        {
+            "name": "tc-netem-cl",
+            "log_name": "tc-netem-cl-paper",
+            "scenario": "bba_buffering_paper"
+        }
+    ],
+    
+    "servers": [
+        {"name": "quic-go"}
+    ],
+
+    "environment": {
+        "name": "cross-layer",
+        "sensors": [
+            {
+                "name": "timeout",
+                "timeout": 100
+            }
+        ]
+    },
+
+    "settings": {
+        "label": "cross_layer_paper",
+        "www_dir": "/home/shivansh/root/datasets",
+        "iterations": 1
+    }
+}
