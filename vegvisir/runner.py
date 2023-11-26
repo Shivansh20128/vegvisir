@@ -211,7 +211,7 @@ class Experiment:
 						print(containers)
 						cmd = (
 							docker_compose_vars
-							+ " docker compose up -d "
+							+ " docker stack deploy -c docker-compose.yml my_stack "
 							+ containers
 						)
 						print("hogya kya")
@@ -258,11 +258,14 @@ class Experiment:
 							# params += " ".join(client.additional_envs())
 							# Docker compose 2.17 introduced a breaking change: --timeout was renamed --waitTimeout
 							# Both, however, support the -t shorthand which we will use to be backwards compatible with previous docker compose versions
+							print("command for client: ")
+							
 							client_cmd = (
 								docker_compose_vars
 								+ " docker compose up --abort-on-container-exit -t 1 "
 								+ "client"
 							)
+							print(client_cmd)
 							client_proc = self.host_interface.spawn_parallel_subprocess(client_cmd, False, True)
 
 						elif client.type == Endpoint.Type.HOST:
