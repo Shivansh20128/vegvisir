@@ -48,7 +48,6 @@ services:
 
   client:
     image: $CLIENT
-    command: ["ping", "server"]
     hostname: client
     stdin_open: true
     tty: true
@@ -103,7 +102,6 @@ services:
 
   server:
     image: $SERVER
-    command: ["ping", "client"]
     hostname: server
     stdin_open: true
     tty: true

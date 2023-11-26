@@ -205,7 +205,7 @@ class Experiment:
 						# params += " ".join(shaper.additional_envs())
 						# params += " ".join(server.additional_envs())
 						# containers = "sim server " + " ".join(testcase.additional_containers())
-						containers = "sim server tcpdump_leftnet tcpdump_rightnet"
+						containers = "r'my_stack_sim\.1\.[a-zA-Z0-9]+' r'my_stack_server\.1\.[a-zA-Z0-9]+' tcpdump_leftnet tcpdump_rightnet"
 						print("yaha compose chlega")
 						print(docker_compose_vars)
 						print(containers)
@@ -262,8 +262,8 @@ class Experiment:
 							
 							client_cmd = (
 								docker_compose_vars
-								+ " docker compose up --abort-on-container-exit -t 1 "
-								+ "client"
+								+ " docker stack deploy -c docker-compose.yml my_stack --abort-on-container-exit -t 1 "
+								+ "r'my_stack_client\.1\.[a-zA-Z0-9]+'"
 							)
 							print(client_cmd)
 							client_proc = self.host_interface.spawn_parallel_subprocess(client_cmd, False, True)
