@@ -1,31 +1,16 @@
-# version: "3.5"
-
-# services:
-#   client:
-#     image: alpine
-#     container_name: alpine1
-#     networks:
-#       - test-net
-  
-
-#   server:
-#     image: alpine
-#     container_name: alpine2
-#     networks:
-#       - test-net
-
-# networks:
-#   test-net:
-
-#     external: true
-
-
-
-version: '3.8'
+version: "3.5"
 
 services:
   sim:
-    image: $SHAPER
+    image: tc-netem-cl
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.type == worker2
+    networks:
+      - my_network
     hostname: sim
     stdin_open: true
     tty: true
@@ -37,40 +22,6 @@ services:
       - NET_ADMIN
     expose:
       - "57832"
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
-          - node.labels.type == worker1
-    networks:
-      - my_network
-
-  client:
-    image: $CLIENT
-    hostname: client
-    stdin_open: true
-    tty: true
-    volumes:
-      - $DOWNLOAD_PATH_CLIENT:/downloads:delegated
-      - $CERTS:/certs:ro
-      - $LOG_PATH_CLIENT:/logs/
-    env_file: 
-      client.env
-    depends_on:
-      - sim
-    cap_add: 
-      - NET_ADMIN
-    ulimits:
-      memlock: 67108864
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
-          - node.labels.type == worker1
-    networks:
-      - my_network
 
   tcpdump_leftnet:
     image: kaazing/tcpdump
@@ -101,7 +52,16 @@ services:
     command: ["-v", "--interface", "eth1", "--packet-buffered", "-w", "/logs/tcpdump_rightnet.pcap" ]
 
   server:
-    image: $SERVER
+    server:
+    image: martenseemann/quic-go-interop:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.type == worker1
+    networks:
+      - my_network
     hostname: server
     stdin_open: true
     tty: true
@@ -117,6 +77,9 @@ services:
       - NET_ADMIN
     ulimits:
       memlock: 67108864
+
+  client:
+    image: godashcl
     deploy:
       replicas: 1
       placement:
@@ -125,9 +88,38 @@ services:
           - node.labels.type == worker2
     networks:
       - my_network
+    hostname: client
+    stdin_open: true
+    tty: true
+    volumes:
+      - $DOWNLOAD_PATH_CLIENT:/downloads:delegated
+      - $CERTS:/certs:ro
+      - $LOG_PATH_CLIENT:/logs/
+    env_file: 
+      client.env
+    depends_on:
+      - sim
+    cap_add: 
+      - NET_ADMIN
+    ulimits:
+      memlock: 67108864
 
 networks:
-  my_network:
-    driver: overlay
-
-
+  leftnet:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 'false'
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 193.167.0.0/24
+        - subnet: fd00:cafe:cafe:0::/64
+  rightnet:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 'false'
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 193.167.100.0/24
+        - subnet: fd00:cafe:cafe:100::/64
